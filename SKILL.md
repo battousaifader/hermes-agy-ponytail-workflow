@@ -66,6 +66,10 @@ Before launching AGY, Hermes must supply the decision-bearing work: target behav
 
 If the contract lacks an authoritative source or explicit values needed for domain data, AGY must stop without edits and report `BLOCKED: missing planner-provided source/values`. Structural validation is not evidence that generated domain data is correct.
 
+## Publication sync
+
+The canonical local skill is mirrored to the user's private repository at `git@github.com:battousaifader/hermes-agy-ponytail-workflow.git`. After an approved update to this skill, copy the current `SKILL.md` into `/opt/data/hermes-agy-ponytail-workflow/SKILL.md`, inspect the diff, commit the coherent update, push `main` with `/opt/data/home/.ssh/id_ed25519_github_hermes_20260728`, and verify the remote SHA. Do not publish incomplete experiments or unrelated local artifacts.
+
 ### 1. Inspect before writing
 
 Run and read the relevant outputs before AGY starts:
