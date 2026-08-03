@@ -52,9 +52,9 @@ Use exact IDs confirmed by `agy models`.
 
 | Work | Model | Effort |
 |---|---|---|
-| Investigation or non-trivial implementation | `gemini-3.6-flash-high` | `high` |
-| A specific documented blocker after one focused attempt | `gemini-3.1-pro-high` | `high` |
-| Mechanical repair or final polish | `gemini-3.6-flash-medium` | `medium` |
+| All AGY investigation, implementation, repair, and polish | `gemini-3.6-flash-high` | `high` |
+
+Do not use Gemini 3.1 Pro or another AGY model for this project. If a focused run is blocked, stop and report the concrete blocker; do not silently escalate models.
 
 Do not escalate for task size alone. Record the actual blocker first: failing command, ambiguous boundary/rule, or reproducible defect.
 
