@@ -1,7 +1,7 @@
 ---
 name: hermes-agy-ponytail-workflow
-description: "Master AGY + Ponytail workflow for minimal, reviewed, source-grounded, independently verified coding delivery."
-version: 2.1.0
+description: "Project-agnostic master AGY + Ponytail workflow for minimal, reviewed, source-grounded, independently verified coding delivery."
+version: 2.2.0
 author: User-provided workflow, curated by Hermes
 license: MIT
 metadata:
@@ -12,7 +12,7 @@ metadata:
 
 # Hermes + AGY + Ponytail Master Workflow
 
-Use this skill whenever Hermes supervises Antigravity CLI (`agy`) repository implementation, review, debugging, installation, or delivery. It combines the official AGY operator guidance, current Ponytail behavior, and the user's proven Pokémon/Godot workflow.
+Use this skill whenever Hermes supervises Antigravity CLI (`agy`) repository implementation, review, debugging, installation, or delivery. It combines the official AGY operator guidance, current Ponytail behavior, and a disciplined project-independent delivery workflow.
 
 ## Non-negotiable project policy
 
@@ -20,8 +20,7 @@ Use this skill whenever Hermes supervises Antigravity CLI (`agy`) repository imp
 - AGY is one bounded executor or reviewer; it does not plan product behavior, invent canonical data, commit, or push.
 - Use **exactly** `gemini-3.6-flash-high` with high effort for every AGY task: investigation, implementation, repair, polish, and review.
 - Do not use Gemini 3.1 Pro, medium models, AGY defaults, or silent model escalation for this project. If blocked, report the concrete blocker and stop.
-- Use one AGY code writer per worktree. Never overlap writers in `/pokemongame`.
-- For the Pokémon project, work only in `/pokemongame`, preserve Godot 3.5.x compatibility, and prefer the main Hermes model for direct coding when the user did not request AGY.
+- Use one AGY code writer per worktree. Never overlap writers in the target worktree.
 - AGY must not commit or push. Hermes independently reviews, validates, commits, pushes, and verifies the remote SHA.
 - `.hermes/` task, plan, and status artifacts remain untracked unless explicitly requested.
 
@@ -138,15 +137,15 @@ git status --short --branch
 git log --oneline -3
 ```
 
-Use Hermes `process(action="list")` and recorded AGY session IDs to identify runs launched by this workflow. Never stop a process based only on the names `agy` or `godot3`. If ownership cannot be tied to the current task/worktree, report the conflict instead of terminating it.
+Use Hermes `process(action="list")` and recorded AGY session IDs to identify runs launched by this workflow. Never stop a process based only on a process name. If ownership cannot be tied to the current task/worktree, report the conflict instead of terminating it.
 
 Read `AGENTS.md`, relevant source, data, tests, task contract, and planner-provided references. Account for every pre-existing change. If an active recurring writer is confirmed to target the same worktree, pause it before writing and resume it after delivery verification. Otherwise, skip this step.
 
 ### 2. Establish canonical facts first
 
-For domain content, Hermes supplies authoritative source revision, exact values, coordinate transforms, schema, edge cases, and acceptance tests. Use committed `docs/references/` handoffs for canonical Pokémon data. Never invent map geometry, encounter slots, trainer parties, item coordinates, warps, event requirements, or facility placement.
+For domain content, Hermes supplies authoritative source revisions, exact values, coordinate or identifier transforms, schema, edge cases, and acceptance tests. Use committed repository references or pinned external sources. Never invent domain rules, geometry, encounter/content tables, item coordinates, warps, event requirements, facility placement, or other source-dependent values.
 
-If a target terrain/state/map does not exist, create a source-backed handoff and reorder around the missing prerequisite. A playable native approximation must be labeled as an approximation; ROM `.blk` files, graphics, sprites, and derived assets are reference-only unless provenance and licensing permit reuse.
+If a target state, integration point, schema, or external dependency does not exist, create a source-backed handoff or prerequisite contract and reorder around the missing prerequisite. Label approximations explicitly; do not reuse proprietary assets, generated artifacts, or derived data without provenance and permission.
 
 ### 3. Write one compact contract
 
@@ -197,16 +196,7 @@ Check the diff against the contract, canonical source, existing callers, and Pon
 
 ### 6. Verify independently
 
-Run the focused commands from the contract plus the appropriate full checks. For the Pokémon/Godot project, the normal gate is:
-
-```bash
-/opt/data/bin/godot3 --path /pokemongame --video-driver Dummy --audio-driver Dummy --script <focused-regression>.gd --quiet
-python3 -m unittest discover tests
-python3 tools/validate_data.py
-git diff --check
-```
-
-Use finite timeouts. Run sibling regressions when a shared map graph, movement transaction, battle path, encounter rate, persistence flag, or validator changes. When extending a graph, update stale pre-extension assertions and verify static symmetry plus runtime traversal in both directions.
+Run the focused commands from the contract plus the appropriate full checks. Use the repository’s documented build, test, lint, typecheck, security, migration, and deployment validation commands. Use finite timeouts and run sibling regressions when a shared interface, state transaction, dependency, persistence path, validator, or public API changes. Verify both directions when extending a graph or protocol.
 
 ### 7. Commit, push, verify
 
@@ -227,18 +217,9 @@ git ls-remote <approved-remote> refs/heads/<approved-target-branch>
 
 The local `HEAD` and remote branch SHA must match before claiming delivery. Never assume `origin main`; use the repository’s approved remote and branch. Do not claim deployment, CI, or endpoint success without external evidence.
 
-## Pokémon-specific preferences and invariants
+## Project integration policy
 
-- Target Pokémon Red first, then unlock Pokémon Gold; Gen II is the content ceiling, not Gen IV/HeartGold.
-- Prefer simple native Godot implementations over copying `gen1recomp` architecture; use `modern_clean` only as behavioral guidance.
-- Preserve Windows/Linux playable builds and CubeXX-safe behavior where applicable.
-- Outdoors remain one `kanto_overworld` with global coordinates; interiors are separate only when useful and must have explicit exits.
-- Field HMs require skill unlock, badge, and compatible party species; they need not be taught. TM reuse remains policy-driven.
-- Story requirements fail closed. One-shot events persist completion and are replay-safe.
-- Trainer rewards occur only after the complete opposing party is defeated.
-- Movement is transactional: source grid position during animation, exactly-once target commit on completion, then follower/camera/save/transition/encounter effects.
-- Encounter rates are explicit per-step gates. Cave encounters may use a labeled interior `tall_grass` approximation while retaining exact source rate and slot order.
-- For source warp IDs without direct native pairing, document the reviewed row-order mapping and test both directions; do not claim more canonical fidelity than the evidence supports.
+This skill is project-agnostic. Before any repository work, load and obey the target repository’s `AGENTS.md`, contribution guide, security policy, and applicable project-specific skills. Repository policy and explicit user requirements override this generic workflow. Keep project-specific architecture, language, framework, test commands, source handoffs, and deployment rules in the repository’s own guidance—not here.
 
 ## Failure handling
 
@@ -261,4 +242,4 @@ The local `HEAD` and remote branch SHA must match before claiming delivery. Neve
 - [ ] Hermes inspected every changed file.
 - [ ] Focused and full checks reproduced locally.
 - [ ] Commit/push and remote SHA verified.
-- [ ] Worker resumed only after delivery verification.
+- [ ] Recurring writer resumed only after delivery verification, when one was paused.
