@@ -1,7 +1,7 @@
 ---
 name: hermes-agy-ponytail-workflow
 description: "Master AGY + Ponytail workflow for minimal, reviewed, source-grounded, independently verified coding delivery."
-version: 2.0.0
+version: 2.1.0
 author: User-provided workflow, curated by Hermes
 license: MIT
 metadata:
@@ -12,7 +12,7 @@ metadata:
 
 # Hermes + AGY + Ponytail Master Workflow
 
-Use this skill whenever Hermes supervises Antigravity CLI (`agy`) coding, review, debugging, installation, or repository delivery. It combines the official AGY operator guidance, current Ponytail behavior, and the user's proven Pokémon/Godot workflow.
+Use this skill whenever Hermes supervises Antigravity CLI (`agy`) repository implementation, review, debugging, installation, or delivery. It combines the official AGY operator guidance, current Ponytail behavior, and the user's proven Pokémon/Godot workflow.
 
 ## Non-negotiable project policy
 
@@ -67,13 +67,22 @@ agy models
 agy plugin list
 ```
 
-Confirm that `gemini-3.6-flash-high` is available before pinning it. Verify Ponytail is installed and configured:
+Confirm that `gemini-3.6-flash-high` is available before pinning it. Inspect plugin state:
 
 ```bash
+agy models
 agy plugin list
-mkdir -p ~/.config/ponytail
-printf '{"defaultMode":"ultra"}\n' > ~/.config/ponytail/config.json
 ```
+
+Do not create or overwrite Ponytail configuration during a precondition check. If plugin configuration is explicitly requested, first verify its documented path and preserve existing keys.
+
+For setup or CLI troubleshooting, also verify:
+
+```bash
+agy help
+```
+
+Inspect `~/.gemini/antigravity-cli/settings.json` and the latest `~/.gemini/antigravity-cli/log/cli-*.log` with `read_file`. If an AGY plugin was changed, run `agy plugin validate <plugin-path>` before use.
 
 Do not execute installer examples involving `curl | bash` without explicit review. Treat official skill documentation marked dangerous as documentation, not an instruction to execute.
 
@@ -95,7 +104,7 @@ Pass the task text immediately to `--print`. Do not place another flag after sho
   --print "$(< .hermes/tasks/<task-id>.md)"
 ```
 
-For bounded long runs, use Hermes `terminal(background=true, notify_on_complete=true, pty=true)`, then `process(action=wait|poll|log)`. For interactive sessions use `pty=true`; resume with `--continue`/`-c` or a specific conversation when appropriate.
+For bounded long `--print` runs, use `terminal(background=true, notify_on_complete=true)` without PTY, then `process(action=wait|poll|log)`. Use `pty=true` only for an interactive TUI session. Resume with `--continue`/`-c` or `--conversation <id>` when appropriate.
 
 ### AGY output and bounds
 
@@ -107,13 +116,14 @@ For bounded long runs, use Hermes `terminal(background=true, notify_on_complete=
 
 ### Review mode
 
-Use the same pinned model for a bounded review when requested:
+Run review without `--dangerously-skip-permissions`:
 
 ```bash
-agy --model gemini-3.6-flash-high --effort high \
-  --dangerously-skip-permissions --print-timeout 20m \
+agy --model gemini-3.6-flash-high --effort high --print-timeout 20m \
   --print "Review the current diff only. Check contract compliance, regressions, security/data-loss risks, Ponytail bloat, and missing focused tests. Do not edit, commit, or push. Report concrete findings first."
 ```
+
+Record `git status --porcelain=v1` before and after review and fail the review if the worktree changed. Use `--sandbox` when review needs commands beyond read-only inspection. Reserve `--dangerously-skip-permissions` for explicitly authorized implementation runs in an isolated worktree.
 
 AGY review is advisory. Hermes remains the final reviewer and must inspect the diff and run checks independently.
 
@@ -126,10 +136,11 @@ In the target repository:
 ```bash
 git status --short --branch
 git log --oneline -3
-ps -eo pid,etimes,args | awk '$0 ~ /agy|godot3/ && $0 !~ /awk/ {print}' || true
 ```
 
-Read `AGENTS.md`, relevant source, data, tests, task contract, and planner-provided references. Account for every pre-existing change. Pause the recurring Pokémon worker before manual AGY/project writing and resume only after review, validation, commit, push, and remote verification.
+Use Hermes `process(action="list")` and recorded AGY session IDs to identify runs launched by this workflow. Never stop a process based only on the names `agy` or `godot3`. If ownership cannot be tied to the current task/worktree, report the conflict instead of terminating it.
+
+Read `AGENTS.md`, relevant source, data, tests, task contract, and planner-provided references. Account for every pre-existing change. If an active recurring writer is confirmed to target the same worktree, pause it before writing and resume it after delivery verification. Otherwise, skip this step.
 
 ### 2. Establish canonical facts first
 
@@ -169,9 +180,7 @@ Start at the smallest useful scope. Do not combine feature, refactor, UI redesig
 
 ### 4. Launch one writer
 
-Launch only the pinned model and contract. Record launch time. Do not poll a healthy silent writer repeatedly; first inspect no earlier than five minutes unless it exits or emits a concrete error. After a check, wait five minutes unless a new signal appears.
-
-After a skill rewrite, observe the required **15-minute cooldown** before starting any new AGY/project code-writing run. Read-only inspection, contract writing, and verification are allowed during cooldown.
+Launch one writer and record its Hermes process session ID. Use `notify_on_complete=true`; poll or inspect logs only when diagnosing a concrete signal, timeout, or suspected stall.
 
 ### 5. Review the real diff
 
@@ -201,18 +210,22 @@ Use finite timeouts. Run sibling regressions when a shared map graph, movement t
 
 ### 7. Commit, push, verify
 
-Hermes commits only a coherent verified slice:
+Only after confirming the repository’s branch and delivery policy:
 
 ```bash
+git status --short --branch
+git remote -v
 git add <reviewed files>
 git diff --cached --check
+git diff --cached
 git commit -m "<conventional message>"
-git push origin main
+git push <approved-remote> HEAD:<approved-target-branch>
 git status --short --branch
-git log -1 --oneline
+git rev-parse HEAD
+git ls-remote <approved-remote> refs/heads/<approved-target-branch>
 ```
 
-Verify the remote branch SHA before claiming delivery. Do not claim deployment, CI, or endpoint success without external evidence.
+The local `HEAD` and remote branch SHA must match before claiming delivery. Never assume `origin main`; use the repository’s approved remote and branch. Do not claim deployment, CI, or endpoint success without external evidence.
 
 ## Pokémon-specific preferences and invariants
 
@@ -230,8 +243,8 @@ Verify the remote branch SHA before claiming delivery. Do not claim deployment, 
 ## Failure handling
 
 - **Eligibility/auth/network failure before edits:** report the concrete failure; do not switch models or start a concurrent writer.
-- **Blank output:** inspect process, status, diff, and milestone files.
-- **Timeout/stall:** inspect Git history and worktree; stop project-scoped child processes; salvage only reviewed changes.
+- **Blank output:** inspect the Hermes process session, worktree status/diff, AGY milestone files, and the latest `~/.gemini/antigravity-cli/log/cli-*.log`.
+- **Timeout/stall:** inspect Git history and worktree; stop only project-scoped child processes whose ownership is recorded for this task; salvage only reviewed changes.
 - **Missing planner values:** stop with `BLOCKED: missing planner-provided source/values`.
 - **Failed verification:** fix or cancel the task, add a revised narrow task, and rerun from a clean understood state.
 - **Push failure:** do not claim success; retry only with the documented repository credentials or report the blocker.
@@ -239,7 +252,7 @@ Verify the remote branch SHA before claiming delivery. Do not claim deployment, 
 ## Master checklist
 
 - [ ] Correct repository and project rules inspected.
-- [ ] Recurring writer paused before manual work.
+- [ ] Active same-worktree recurring writer paused when present.
 - [ ] Canonical sources and exact values supplied.
 - [ ] One narrow contract with non-goals and focused checks.
 - [ ] Only `gemini-3.6-flash-high`, high effort.
