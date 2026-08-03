@@ -1,136 +1,85 @@
 ---
 name: hermes-agy-ponytail-workflow
-description: "Use when Hermes supervises Antigravity CLI (agy) coding work. Enforces one writer, narrow task contracts, Ponytail ultra, independent verification, and verified delivery."
-version: 1.0.0
+description: "Master AGY + Ponytail workflow for minimal, reviewed, source-grounded, independently verified coding delivery."
+version: 2.0.0
 author: User-provided workflow, curated by Hermes
 license: MIT
 metadata:
   hermes:
-    tags: [hermes, agy, antigravity, ponytail, coding, verification]
+    tags: [hermes, agy, antigravity, ponytail, coding, review, verification]
     related_skills: [antigravity-cli, ponytail]
 ---
 
-# Hermes + AGY + Ponytail Workflow
+# Hermes + AGY + Ponytail Master Workflow
 
-## Overview
+Use this skill whenever Hermes supervises Antigravity CLI (`agy`) coding, review, debugging, installation, or repository delivery. It combines the official AGY operator guidance, current Ponytail behavior, and the user's proven Pokémon/Godot workflow.
 
-Hermes owns discovery, task boundaries, independent review, and verified delivery. AGY owns a single narrow code-writing slice. Ponytail ultra governs both: implement the smallest correct solution, without removing validation, security, data integrity, accessibility, or the smallest meaningful check.
+## Non-negotiable project policy
 
-## When to Use
+- Hermes/GPT owns discovery, canonical research, architecture, task boundaries, review, verification, commit, and push.
+- AGY is one bounded executor or reviewer; it does not plan product behavior, invent canonical data, commit, or push.
+- Use **exactly** `gemini-3.6-flash-high` with high effort for every AGY task: investigation, implementation, repair, polish, and review.
+- Do not use Gemini 3.1 Pro, medium models, AGY defaults, or silent model escalation for this project. If blocked, report the concrete blocker and stop.
+- Use one AGY code writer per worktree. Never overlap writers in `/pokemongame`.
+- For the Pokémon project, work only in `/pokemongame`, preserve Godot 3.5.x compatibility, and prefer the main Hermes model for direct coding when the user did not request AGY.
+- AGY must not commit or push. Hermes independently reviews, validates, commits, pushes, and verifies the remote SHA.
+- `.hermes/` task, plan, and status artifacts remain untracked unless explicitly requested.
 
-- A coding task is delegated to AGY.
-- A project needs a verified implementation → review → commit → push sequence.
-- The user asks for Hermes + AGY coordination or Ponytail discipline.
+## Ponytail mode
 
-Do not use multiple AGY code writers in one worktree. Queue the next writer until the active one exits and Hermes has inspected `git status`.
+Ponytail is active for every coding task. Default project execution mode is **ultra** for AGY work; respect an explicit user mode such as `/ponytail full` for the current interaction.
 
-## Required Setup
+Apply the ladder after understanding the real flow:
 
-Before code-writing work, confirm:
+1. Does this need to exist? Skip speculative work.
+2. Reuse an existing helper, type, pattern, or transaction.
+3. Prefer the standard library.
+4. Prefer native platform features.
+5. Prefer an already-installed dependency.
+6. Prefer one line.
+7. Write the minimum correct code.
+
+Also:
+
+- Read the task and trace callers before editing.
+- Fix root causes in shared paths, not symptoms in one caller.
+- Prefer deletion, boring code, few files, and no speculative abstractions.
+- Mark deliberate simplifications with a `ponytail:` comment naming the ceiling and upgrade path.
+- Never simplify away validation at trust boundaries, error handling that prevents data loss, security, accessibility, or explicitly requested behavior.
+- Every non-trivial branch, loop, parser, money/security path, or state transaction leaves one runnable focused check. Trivial one-liners need no test.
+- Output code first; then at most three concise lines unless the user requests a report or walkthrough.
+
+## Official AGY operator model
+
+AGY has two distinct layers:
+
+1. **Shell wrapper:** `agy help`, `agy install`, `agy plugin`, `agy update`, `agy changelog`, and non-interactive `agy --print`/`-p`.
+2. **Interactive TUI commands:** `/config`, `/permissions`, `/skills`, `/agents`, `/model`, `/settings`, `/tasks`, `/resume`, `/continue`, `/rewind`, `/fork`, and related commands. These do not work as shell commands.
+
+Run AGY commands through Hermes `terminal`. Read AGY files with `read_file`, not `cat`.
+
+### Preconditions
 
 ```bash
+command -v agy
 agy --version
 agy models
 agy plugin list
 ```
 
-Ponytail must be installed in AGY and configured persistently:
+Confirm that `gemini-3.6-flash-high` is available before pinning it. Verify Ponytail is installed and configured:
 
 ```bash
-agy plugin install https://github.com/DietrichGebert/ponytail
+agy plugin list
 mkdir -p ~/.config/ponytail
 printf '{"defaultMode":"ultra"}\n' > ~/.config/ponytail/config.json
 ```
 
-`ultra` is a Ponytail mode, not an AGY effort level. Prefer `PONYTAIL_DEFAULT_MODE=ultra` as an environment override only when it is intentionally part of the host startup environment; the config file is the portable persistent default.
+Do not execute installer examples involving `curl | bash` without explicit review. Treat official skill documentation marked dangerous as documentation, not an instruction to execute.
 
-For Hermes, load the `ponytail` skill before every code-writing task and require a Ponytail diff review before a verified commit. If the native Ponytail plugin is installed, it must be enabled and configured for ultra; start a fresh session/gateway restart after plugin changes.
+### One-shot execution
 
-## Model Policy
-
-Use exact IDs confirmed by `agy models`.
-
-| Work | Model | Effort |
-|---|---|---|
-| All AGY investigation, implementation, repair, and polish | `gemini-3.6-flash-high` | `high` |
-
-Do not use Gemini 3.1 Pro or another AGY model for this project. If a focused run is blocked, stop and report the concrete blocker; do not silently escalate models.
-
-Do not escalate for task size alone. Record the actual blocker first: failing command, ambiguous boundary/rule, or reproducible defect.
-
-## Planner–executor boundary
-
-Hermes/GPT is the planner and verifier; AGY is the bounded executor.
-
-Before launching AGY, Hermes must supply the decision-bearing work: target behavior, file-level change plan, data/schema shape, source-of-truth references for canon/domain facts, edge cases, acceptance assertions, and exact checks. AGY may inspect implementation details and make the smallest mechanical choice consistent with that plan, but must not invent product rules, canonical game data, broad mappings, architecture, or an unspecified expansion of scope.
-
-If the contract lacks an authoritative source or explicit values needed for domain data, AGY must stop without edits and report `BLOCKED: missing planner-provided source/values`. Structural validation is not evidence that generated domain data is correct.
-
-## Publication sync
-
-The canonical local skill is mirrored to the user's private repository at `git@github.com:battousaifader/hermes-agy-ponytail-workflow.git`. After an approved update to this skill, copy the current `SKILL.md` into `/opt/data/hermes-agy-ponytail-workflow/SKILL.md`, inspect the diff, commit the coherent update, push `main` with `/opt/data/home/.ssh/id_ed25519_github_hermes_20260728`, and verify the remote SHA. Do not publish incomplete experiments or unrelated local artifacts.
-
-### 1. Inspect before writing
-
-Run and read the relevant outputs before AGY starts:
-
-```bash
-git status --short --branch
-git log --oneline -3
-find . -maxdepth 2 \( -name AGENTS.md -o -name CLAUDE.md \)
-```
-
-Read repository instructions, affected code/data paths, tests, and deployment workflow. Preserve pre-existing changes unless the user explicitly authorizes modifying them.
-
-**Complete when:** every pre-existing change and applicable repository rule is accounted for.
-
-### 2. Write a compact task contract
-
-Create `.hermes/tasks/<task-id>.md` with:
-
-```md
-# Goal
-<one observable outcome>
-
-## Scope / non-goals
-- In: <files or user flows>
-- Out: <deferred work>
-
-## Constraints
-- Preserve existing work.
-- No new dependency unless necessary.
-
-## Acceptance
-- [ ] <visible behavior>
-- [ ] <edge case / data or security constraint>
-
-## Checks
-- <focused test>
-- <build/typecheck>
-
-## Final report
-Changed files, checks, commit SHA, push status, deployment evidence, blockers.
-```
-
-**Complete when:** one narrow vertical slice has explicit acceptance checks and non-goals.
-
-### Skill-rewrite cooldown
-
-After any rewrite of a loaded Hermes/AGY workflow skill, do not start a new project code-writing task for **15 minutes**. Record the rewrite time and defer the task instead of starting a writer early. This cooldown applies to manual and scheduled project work; it does not block read-only inspection, contract writing, or verification.
-
-### Scope ramp: find the breaking point slowly
-
-Start every AGY evaluation cycle at **S0**: one observable behavior in one source area, plus one focused regression/check. Do not combine a feature, UI redesign, migration, refactor, or second behavior in the same S0 contract.
-
-Advance only after **three consecutive clean AGY runs**: useful minimal diff, AGY completed its listed focused checks, and Hermes needed no code repair. Expand one dimension at a time (one adjacent behavior *or* one additional source area, never both). After any stall, blank output, broad diff, failed acceptance, or Hermes repair, return the next AGY run to the last proven-small scope; do not escalate models merely because scope failed.
-
-Record the scope level and why it advanced, held, or shrank in the 20-run evaluation entry.
-
-### 3. Launch one bounded AGY writer
-
-Use a short launch prompt that directs AGY to read repository rules and the task contract, implement only that slice, preserve unrelated changes, run listed checks, review with Ponytail, and report changed files/checks/commit/push/blockers.
-
-For non-interactive execution, pass task text immediately to `--print`; do not put another flag directly after short `-p`.
+Preferred for bounded work, reviews, and scripted prompts:
 
 ```bash
 agy --model gemini-3.6-flash-high --effort high \
@@ -138,61 +87,165 @@ agy --model gemini-3.6-flash-high --effort high \
   --print "$(< .hermes/tasks/<task-id>.md)"
 ```
 
-AGY may write an untracked milestone file at `.hermes/agent-status/<task-id>.md`; do not commit it.
+Pass the task text immediately to `--print`. Do not place another flag after short `-p`. Use the absolute AGY path when PATH is uncertain:
 
-### Process observation cadence
+```bash
+/opt/data/home/.local/bin/agy --model gemini-3.6-flash-high --effort high \
+  --dangerously-skip-permissions --print-timeout 45m \
+  --print "$(< .hermes/tasks/<task-id>.md)"
+```
 
-Record launch time, then make the **first** process/status/diff check no earlier than **5 minutes** after launch. Do not spend 120-second polling turns on a healthy silent writer. Check earlier only when the process exits, emits a concrete error/completion signal, or the user asks. After the first check, inspect no more often than every 5 minutes unless there is a new signal. Each check should combine process state, `git status`, and a concise diff summary.
+For bounded long runs, use Hermes `terminal(background=true, notify_on_complete=true, pty=true)`, then `process(action=wait|poll|log)`. For interactive sessions use `pty=true`; resume with `--continue`/`-c` or a specific conversation when appropriate.
 
-**Complete when:** only one writer is active and its process/state is observable.
+### AGY output and bounds
 
-### 4. Verify independently
+- `agy -p`/`--print` returns plain text, not a JSON envelope.
+- There is no reliable `--output-format json` result envelope and no `--max-turns` flag.
+- Bound execution with `--print-timeout` and the outer terminal timeout.
+- AGY may write `.hermes/agent-status/<task-id>.md`; leave it untracked.
+- A report saying tests passed is a claim until Hermes sees local command output.
 
-Treat AGY’s report as a claim. Hermes must inspect the real repository and rerun appropriate checks:
+### Review mode
+
+Use the same pinned model for a bounded review when requested:
+
+```bash
+agy --model gemini-3.6-flash-high --effort high \
+  --dangerously-skip-permissions --print-timeout 20m \
+  --print "Review the current diff only. Check contract compliance, regressions, security/data-loss risks, Ponytail bloat, and missing focused tests. Do not edit, commit, or push. Report concrete findings first."
+```
+
+AGY review is advisory. Hermes remains the final reviewer and must inspect the diff and run checks independently.
+
+## Required workflow
+
+### 1. Inspect before writing
+
+In the target repository:
 
 ```bash
 git status --short --branch
-git diff --check
-git diff --cached --check
-git show --stat --oneline HEAD
+git log --oneline -3
+ps -eo pid,etimes,args | awk '$0 ~ /agy|godot3/ && $0 !~ /awk/ {print}' || true
 ```
 
-Run the focused checks named in the task contract. For Docker/UI delivery, also verify `docker compose config`, running services, and the actual endpoint. For remote delivery, verify remote SHA and CI/workflow status. For image deployment, verify the running image revision rather than assuming a local commit is live.
+Read `AGENTS.md`, relevant source, data, tests, task contract, and planner-provided references. Account for every pre-existing change. Pause the recurring Pokémon worker before manual AGY/project writing and resume only after review, validation, commit, push, and remote verification.
 
-Apply a Ponytail review: remove only demonstrably safe bloat; do not remove required safety, behavior, or tests.
+### 2. Establish canonical facts first
 
-**Complete when:** changed files, test results, diff hygiene, remote state, and any requested deployment target are verified from tools—not summaries.
+For domain content, Hermes supplies authoritative source revision, exact values, coordinate transforms, schema, edge cases, and acceptance tests. Use committed `docs/references/` handoffs for canonical Pokémon data. Never invent map geometry, encounter slots, trainer parties, item coordinates, warps, event requirements, or facility placement.
 
-### 5. Deliver
+If a target terrain/state/map does not exist, create a source-backed handoff and reorder around the missing prerequisite. A playable native approximation must be labeled as an approximation; ROM `.blk` files, graphics, sprites, and derived assets are reference-only unless provenance and licensing permit reuse.
 
-Commit only a coherent verified slice using a conventional message, then push. Verify the remote branch after push. Do not claim deployment without endpoint/container/CI evidence.
+### 3. Write one compact contract
 
-**Complete when:** the final report states verified facts, any exact blocker, and no unverified AGY claim.
+Create `.hermes/tasks/<task-id>.md` containing:
 
-## Failure Handling
+```md
+# Goal
+One observable outcome.
 
-- **Blank AGY print output:** inspect process status, `git status`, and milestone file before declaring failure.
-- **Timeout:** inspect Git history and working tree; a commit may have completed while final output was pending.
-- **AGY stall or context failure:** preserve useful changes, stop the writer, inspect the tree, then use Hermes/main tools for the narrowest safe cleanup.
-- **Concurrent-writer risk:** stop or wait for the active writer; never overlap writers in one worktree.
-- **Push/deploy claim:** verify it externally before reporting success.
+## Scope / non-goals
+- In: exact files and behavior.
+- Out: deferred or blocked work.
 
-## Twenty-Run AGY Refinement Loop
+## Constraints
+- Existing architecture and source-of-truth rules.
+- No invented values, dependencies, commits, or pushes.
 
-When the user requests workflow tuning, evaluate the next 20 AGY writing runs without adding a second writer or weakening verification.
+## Acceptance
+- Observable behavior.
+- Persistence/idempotency/error edge case.
 
-For each run, record an untracked entry under `.hermes/agy-workflow-evaluation.md`: task ID, scope level and decision, contract/prompt length, launch-to-first-check time, number of checks, elapsed time, whether AGY produced a useful diff, exact checks run, cleanup required, and final outcome. Compare against the prior entry.
+## Checks
+- Exact focused command.
+- Required project validation commands.
 
-Make **at most one** evidence-backed adjustment per run. Prefer deleting duplicated prompt text, naming the exact files/acceptance checks, or narrowing scope. Do not change the one-writer rule, Ponytail ultra, independent verification, no-commit AGY boundary, or required validation merely to reduce tokens. After run 20, stop automatic tuning and summarize the measured result before any further workflow change.
+## Final report
+Changed files, checks, commit/push status, blockers.
+```
 
-**Complete when:** each run has a comparable record and any workflow edit is traceable to a measured failure or avoidable token cost.
+Start at the smallest useful scope. Do not combine feature, refactor, UI redesign, migration, or unrelated content in one contract.
 
-## Verification Checklist
+### 4. Launch one writer
 
-- [ ] One AGY code writer at most per worktree.
-- [ ] Repository rules and pre-existing changes inspected first.
-- [ ] Compact task contract defines scope, acceptance, checks, and non-goals.
-- [ ] Ponytail is ultra and a Ponytail review occurred before commit.
-- [ ] Hermes independently inspected diff and ran relevant checks.
-- [ ] Commit, push, CI, image, and endpoint claims are backed by tool output where requested.
-- [ ] Final report distinguishes verified facts from blockers.
+Launch only the pinned model and contract. Record launch time. Do not poll a healthy silent writer repeatedly; first inspect no earlier than five minutes unless it exits or emits a concrete error. After a check, wait five minutes unless a new signal appears.
+
+After a skill rewrite, observe the required **15-minute cooldown** before starting any new AGY/project code-writing run. Read-only inspection, contract writing, and verification are allowed during cooldown.
+
+### 5. Review the real diff
+
+After AGY exits:
+
+```bash
+git status --short --branch
+git diff --stat
+git diff --check
+git diff -- <every changed file>
+```
+
+Check the diff against the contract, canonical source, existing callers, and Ponytail ladder. Reject unrelated churn, invented content, broad refactors, and test claims not reproduced locally. If a writer stalls, preserve useful changes only after inspecting every file and stop orphaned project processes before rerunning checks.
+
+### 6. Verify independently
+
+Run the focused commands from the contract plus the appropriate full checks. For the Pokémon/Godot project, the normal gate is:
+
+```bash
+/opt/data/bin/godot3 --path /pokemongame --video-driver Dummy --audio-driver Dummy --script <focused-regression>.gd --quiet
+python3 -m unittest discover tests
+python3 tools/validate_data.py
+git diff --check
+```
+
+Use finite timeouts. Run sibling regressions when a shared map graph, movement transaction, battle path, encounter rate, persistence flag, or validator changes. When extending a graph, update stale pre-extension assertions and verify static symmetry plus runtime traversal in both directions.
+
+### 7. Commit, push, verify
+
+Hermes commits only a coherent verified slice:
+
+```bash
+git add <reviewed files>
+git diff --cached --check
+git commit -m "<conventional message>"
+git push origin main
+git status --short --branch
+git log -1 --oneline
+```
+
+Verify the remote branch SHA before claiming delivery. Do not claim deployment, CI, or endpoint success without external evidence.
+
+## Pokémon-specific preferences and invariants
+
+- Target Pokémon Red first, then unlock Pokémon Gold; Gen II is the content ceiling, not Gen IV/HeartGold.
+- Prefer simple native Godot implementations over copying `gen1recomp` architecture; use `modern_clean` only as behavioral guidance.
+- Preserve Windows/Linux playable builds and CubeXX-safe behavior where applicable.
+- Outdoors remain one `kanto_overworld` with global coordinates; interiors are separate only when useful and must have explicit exits.
+- Field HMs require skill unlock, badge, and compatible party species; they need not be taught. TM reuse remains policy-driven.
+- Story requirements fail closed. One-shot events persist completion and are replay-safe.
+- Trainer rewards occur only after the complete opposing party is defeated.
+- Movement is transactional: source grid position during animation, exactly-once target commit on completion, then follower/camera/save/transition/encounter effects.
+- Encounter rates are explicit per-step gates. Cave encounters may use a labeled interior `tall_grass` approximation while retaining exact source rate and slot order.
+- For source warp IDs without direct native pairing, document the reviewed row-order mapping and test both directions; do not claim more canonical fidelity than the evidence supports.
+
+## Failure handling
+
+- **Eligibility/auth/network failure before edits:** report the concrete failure; do not switch models or start a concurrent writer.
+- **Blank output:** inspect process, status, diff, and milestone files.
+- **Timeout/stall:** inspect Git history and worktree; stop project-scoped child processes; salvage only reviewed changes.
+- **Missing planner values:** stop with `BLOCKED: missing planner-provided source/values`.
+- **Failed verification:** fix or cancel the task, add a revised narrow task, and rerun from a clean understood state.
+- **Push failure:** do not claim success; retry only with the documented repository credentials or report the blocker.
+
+## Master checklist
+
+- [ ] Correct repository and project rules inspected.
+- [ ] Recurring writer paused before manual work.
+- [ ] Canonical sources and exact values supplied.
+- [ ] One narrow contract with non-goals and focused checks.
+- [ ] Only `gemini-3.6-flash-high`, high effort.
+- [ ] One writer maximum; AGY did not commit/push.
+- [ ] Ponytail review completed.
+- [ ] Hermes inspected every changed file.
+- [ ] Focused and full checks reproduced locally.
+- [ ] Commit/push and remote SHA verified.
+- [ ] Worker resumed only after delivery verification.
