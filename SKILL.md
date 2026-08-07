@@ -1,7 +1,7 @@
 ---
 name: hermes-agy-ponytail-workflow
 description: "Project-agnostic master AGY + Ponytail workflow for minimal, reviewed, source-grounded, independently verified coding delivery."
-version: 2.2.0
+version: 3.0.0
 author: User-provided workflow, curated by Hermes
 license: MIT
 metadata:
@@ -16,39 +16,19 @@ Use this skill whenever Hermes supervises Antigravity CLI (`agy`) repository imp
 
 ## Non-negotiable project policy
 
-- Hermes/GPT owns discovery, canonical research, architecture, task boundaries, review, verification, commit, and push.
+- The supervising agent owns discovery, canonical research, architecture, task boundaries, review, verification, commit, and push.
 - AGY is one bounded executor or reviewer; it does not plan product behavior, invent canonical data, commit, or push.
-- Use **exactly** `gemini-3.6-flash-high` with high effort for every AGY task: investigation, implementation, repair, polish, and review.
-- Do not use Gemini 3.1 Pro, medium models, AGY defaults, or silent model escalation for this project. If blocked, report the concrete blocker and stop.
-- Use one AGY code writer per worktree. Never overlap writers in the target worktree.
+- AGY must use exactly `gemini-3.6-flash-high` with high effort for every AGY task: investigation, implementation, repair, polish, and review.
+- AGY must not use Gemini 3.1 Pro, medium models, AGY defaults, or silent model escalation. If blocked, report the concrete blocker and stop.
 - AGY must not commit or push. Hermes independently reviews, validates, commits, pushes, and verifies the remote SHA.
 - `.hermes/` task, plan, and status artifacts remain untracked unless explicitly requested.
 
-## Ponytail mode
+## External dependency: Ponytail
 
-Ponytail is active for every coding task. Default project execution mode is **ultra** for AGY work; respect an explicit user mode such as `/ponytail full` for the current interaction.
+Ponytail is an independent dependency. Load the separately installed Ponytail skill/plugin when coding; do not copy or restate its rules here. Keep Ponytail source updates independent from this workflow’s releases. If Ponytail is unavailable, report the dependency blocker rather than recreating its policy here.
 
-Apply the ladder after understanding the real flow:
+## AGY execution policy
 
-1. Does this need to exist? Skip speculative work.
-2. Reuse an existing helper, type, pattern, or transaction.
-3. Prefer the standard library.
-4. Prefer native platform features.
-5. Prefer an already-installed dependency.
-6. Prefer one line.
-7. Write the minimum correct code.
-
-Also:
-
-- Read the task and trace callers before editing.
-- Fix root causes in shared paths, not symptoms in one caller.
-- Prefer deletion, boring code, few files, and no speculative abstractions.
-- Mark deliberate simplifications with a `ponytail:` comment naming the ceiling and upgrade path.
-- Never simplify away validation at trust boundaries, error handling that prevents data loss, security, accessibility, or explicitly requested behavior.
-- Every non-trivial branch, loop, parser, money/security path, or state transaction leaves one runnable focused check. Trivial one-liners need no test.
-- Output code first; then at most three concise lines unless the user requests a report or walkthrough.
-
-## Official AGY operator model
 
 AGY has two distinct layers:
 
@@ -59,62 +39,15 @@ Run AGY commands through Hermes `terminal`. Read AGY files with `read_file`, not
 
 ### Preconditions
 
-Hermes’ lifecycle guard can mistakenly treat the AGY ELF binary as a script when a direct executable path appears in a shell command, then crash while scanning embedded NUL bytes. Invoke AGY through Python subprocess for preflight instead of calling the binary directly from the shell:
+Confirm that the required AGY executable, the approved AGY model/effort, and the required plugin state are available before a run. Use the host’s documented AGY invocation and local operator runbook; do not bypass permission or security controls. If preflight fails, report the concrete blocker and stop.
 
-```bash
-python3 -c 'import os,sys,subprocess; p=os.path.expanduser("~/.local/bin/agy"); subprocess.run([p,*sys.argv[1:]],check=True)' -- --version
-python3 -c 'import os,sys,subprocess; p=os.path.expanduser("~/.local/bin/agy"); subprocess.run([p,*sys.argv[1:]],check=True)' -- models
-python3 -c 'import os,sys,subprocess; p=os.path.expanduser("~/.local/bin/agy"); subprocess.run([p,*sys.argv[1:]],check=True)' -- plugin list
-```
-
-Confirm that `gemini-3.6-flash-high` is available before pinning it. Inspect plugin state. Use the same wrapper for `help` when needed. If the wrapper fails, report the concrete error; do not bypass the lifecycle guard or switch models.
-
-Do not create or overwrite Ponytail configuration during a precondition check. If plugin configuration is explicitly requested, first verify its documented path and preserve existing keys.
-
-Inspect `~/.gemini/antigravity-cli/settings.json` and the latest `~/.gemini/antigravity-cli/log/cli-*.log` with `read_file`. If an AGY plugin was changed, run `agy plugin validate <plugin-path>` before use.
-
-Do not execute installer examples involving `curl | bash` without explicit review. Treat official skill documentation marked dangerous as documentation, not an instruction to execute.
+Do not create or overwrite Ponytail configuration during a precondition check. If plugin configuration is explicitly requested, first verify its documented path and preserve existing keys. If an AGY plugin was changed, validate it before use.
 
 ### One-shot execution
 
-Preferred for bounded work, reviews, and scripted prompts:
+Use one bounded, non-interactive AGY implementation run for each contract. Pass the contract immediately to AGY, use the approved AGY model/effort, and use the authorized isolated implementation permission mode only when the host policy permits it. Review runs use read-only or sandboxed permissions.
 
-```bash
-agy --model gemini-3.6-flash-high --effort high \
-  --dangerously-skip-permissions --print-timeout 45m \
-  --print "$(< .hermes/tasks/<task-id>.md)"
-```
-
-Pass the task text immediately to `--print`. Do not place another flag after short `-p`. Use the absolute AGY path when PATH is uncertain:
-
-```bash
-/opt/data/home/.local/bin/agy --model gemini-3.6-flash-high --effort high \
-  --dangerously-skip-permissions --print-timeout 45m \
-  --print "$(< .hermes/tasks/<task-id>.md)"
-```
-
-For bounded long `--print` runs, use `terminal(background=true, notify_on_complete=true)` without PTY, then `process(action=wait|poll|log)`. Use `pty=true` only for an interactive TUI session. Resume with `--continue`/`-c` or `--conversation <id>` when appropriate.
-
-### AGY output and bounds
-
-- `agy -p`/`--print` returns plain text, not a JSON envelope.
-- There is no reliable `--output-format json` result envelope and no `--max-turns` flag.
-- Bound execution with `--print-timeout` and the outer terminal timeout.
-- AGY may write `.hermes/agent-status/<task-id>.md`; leave it untracked.
-- A report saying tests passed is a claim until Hermes sees local command output.
-
-### Review mode
-
-Run review without `--dangerously-skip-permissions`:
-
-```bash
-agy --model gemini-3.6-flash-high --effort high --print-timeout 20m \
-  --print "Review the current diff only. Check contract compliance, regressions, security/data-loss risks, Ponytail bloat, and missing focused tests. Do not edit, commit, or push. Report concrete findings first."
-```
-
-Record `git status --porcelain=v1` before and after review and fail the review if the worktree changed. Use `--sandbox` when review needs commands beyond read-only inspection. Reserve `--dangerously-skip-permissions` for explicitly authorized implementation runs in an isolated worktree.
-
-AGY review is advisory. Hermes remains the final reviewer and must inspect the diff and run checks independently.
+Bound long runs with the host’s timeout mechanism. Use an interactive session only when the task requires it. AGY output is plain text unless the host explicitly configures another supported format.
 
 ## Required workflow
 

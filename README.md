@@ -8,8 +8,8 @@ A private reusable Hermes skill for a planner–executor coding workflow:
 
 ## Provenance
 
-- Reviewed workflow revision: `7df41cc`
-- `SKILL.md` SHA-256: `ad735913bb2c248884940909696270d033c13255c2080202f305f31fb06a85a9`
+- Reviewed workflow version: `3.0.0`
+- `SKILL.md` SHA-256: `041cf10011bd38373320b4c47ab469e4d5f7ee07334652d330b521096c2b17e3`
 - The installed Hermes copy should match this hash before use.
 
 Install or copy `SKILL.md` into a Hermes skills directory, then load `hermes-agy-ponytail-workflow` for supervised AGY work. See `SECURITY.md` before importing it through another agent or skill manager.
