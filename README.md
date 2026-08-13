@@ -77,8 +77,8 @@ provider are intentionally unspecified.
 
 ## Provenance
 
-- Reviewed workflow version: `3.0.0`
-- `SKILL.md` SHA-256: `041cf10011bd38373320b4c47ab469e4d5f7ee07334652d330b521096c2b17e3`
+- Reviewed workflow version: `3.1.0`
+- `SKILL.md` SHA-256: `63537afdc8712f21844531e1382dd5a3f90efa7e20adc94ba406a4eedb56fb23`
 - The installed Hermes copy should match this hash before use.
 
 See `SECURITY.md` for provenance, scanner, credential, and permission

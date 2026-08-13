@@ -1,7 +1,7 @@
 ---
 name: hermes-agy-ponytail-workflow
 description: "Project-agnostic master AGY + Ponytail workflow for minimal, reviewed, source-grounded, independently verified coding delivery."
-version: 3.0.0
+version: 3.1.0
 author: User-provided workflow, curated by Hermes
 license: MIT
 metadata:
@@ -99,6 +99,16 @@ Changed files, checks, commit/push status, blockers.
 ```
 
 Start at the smallest useful scope. Do not combine feature, refactor, UI redesign, migration, or unrelated content in one contract.
+
+### AGY task sizing
+
+Prefer one behavior or bug fix in one subsystem or vertical slice:
+
+- normally 1–5 implementation files, excluding tests, data, and docs;
+- one primary acceptance path and one focused check;
+- no architecture decisions, broad refactors, or unresolved canonical/product decisions.
+
+Split the work when it spans independent features, subsystems, data families, migrations, or multiple major acceptance paths. Prepare prerequisites first, then delegate serial slices: contract/data, runtime behavior, persistence, regression check.
 
 ### 4. Launch one writer
 
