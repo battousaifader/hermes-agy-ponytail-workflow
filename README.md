@@ -72,13 +72,13 @@ AGY:
 6. Commit and push only from the supervising agent, then verify the remote SHA.
 
 AGY-specific model policy applies only inside AGY: use exactly
-`gemini-3.6-flash-high` with high effort. The supervising agent’s model and
+`gemini-3.7-flash-medium` with medium effort. The supervising agent’s model and
 provider are intentionally unspecified.
 
 ## Provenance
 
-- Reviewed workflow version: `3.1.0`
-- `SKILL.md` SHA-256: `63537afdc8712f21844531e1382dd5a3f90efa7e20adc94ba406a4eedb56fb23`
+- Reviewed workflow version: `3.2.0`
+- `SKILL.md` SHA-256: `e415b4d2a854cacb8857f5600cc7a2aafa0461bc1b4027d0fb0e34f835324ea3`
 - The installed Hermes copy should match this hash before use.
 
 See `SECURITY.md` for provenance, scanner, credential, and permission

@@ -1,7 +1,7 @@
 ---
 name: hermes-agy-ponytail-workflow
 description: "Project-agnostic master AGY + Ponytail workflow for minimal, reviewed, source-grounded, independently verified coding delivery."
-version: 3.1.0
+version: 3.2.0
 author: User-provided workflow, curated by Hermes
 license: MIT
 metadata:
@@ -18,8 +18,8 @@ Use this skill whenever Hermes supervises Antigravity CLI (`agy`) repository imp
 
 - The supervising agent owns discovery, canonical research, architecture, task boundaries, review, verification, commit, and push.
 - AGY is one bounded executor or reviewer; it does not plan product behavior, invent canonical data, commit, or push.
-- AGY must use exactly `gemini-3.6-flash-high` with high effort for every AGY task: investigation, implementation, repair, polish, and review.
-- AGY must not use Gemini 3.1 Pro, medium models, AGY defaults, or silent model escalation. If blocked, report the concrete blocker and stop.
+- AGY must use exactly `gemini-3.7-flash-medium` with medium effort for every AGY task: investigation, implementation, repair, polish, and review.
+- AGY must not use other models, AGY defaults, or silent model escalation. If blocked, report the concrete blocker and stop.
 - AGY must not commit or push. Hermes independently reviews, validates, commits, pushes, and verifies the remote SHA.
 - `.hermes/` task, plan, and status artifacts remain untracked unless explicitly requested.
 
@@ -169,7 +169,7 @@ This skill is project-agnostic. Before any repository work, load and obey the ta
 - [ ] Active same-worktree recurring writer paused when present.
 - [ ] Canonical sources and exact values supplied.
 - [ ] One narrow contract with non-goals and focused checks.
-- [ ] Only `gemini-3.6-flash-high`, high effort.
+- [ ] Only `gemini-3.7-flash-medium`, medium effort.
 - [ ] One writer maximum; AGY did not commit/push.
 - [ ] Ponytail review completed.
 - [ ] Hermes inspected every changed file.
